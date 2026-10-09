@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CNN Lab Check</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap">
+<style>
+:root{--bg:#EEF5F0;--paper:#FBFDFA;--ink:#14213D;--mut:#4F5D78;--teal:#0B8F8F;--coral:#D9482B;--hi:#FFD23F;--line:#C4D9CD;--grid:rgba(20,33,61,.07);box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1923;--paper:#14232F;--ink:#E7F1F2;--mut:#9DB0BF;--teal:#3CC9C0;--coral:#FF7A59;--hi:#FFD23F;--line:#2A4050;--grid:rgba(231,241,242,.06)}}
+:root[data-theme="dark"]{--bg:#0D1923;--paper:#14232F;--ink:#E7F1F2;--mut:#9DB0BF;--teal:#3CC9C0;--coral:#FF7A59;--hi:#FFD23F;--line:#2A4050;--grid:rgba(231,241,242,.06)}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:'Bricolage Grotesque',system-ui,-apple-system,'Segoe UI',sans-serif;line-height:1.5;background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:24px 24px}
+.wrap{max-width:820px;margin:0 auto;padding:20px 16px 48px}
+header h1{font-size:clamp(2rem,6vw,3.2rem);line-height:1.02;margin:6px 0 4px;font-weight:800;letter-spacing:-.02em}
+header h1 span{background:linear-gradient(transparent 58%,var(--hi) 58%);padding:0 4px}
+header p{margin:0 0 14px;color:var(--mut)}
+.xp{display:flex;align-items:center;gap:10px;background:var(--paper);border:2px solid var(--ink);border-radius:12px;padding:8px 12px;font-weight:600}
+.xp b{font-size:1.3rem}
+.xp i{flex:1;height:10px;border:2px solid var(--ink);border-radius:6px;overflow:hidden;display:block}
+.xp u{display:block;height:100%;width:0;background:var(--teal);transition:width .5s}
+nav{display:flex;gap:6px;margin:16px 0 0}
+nav button{flex:1;font:inherit;font-weight:600;padding:10px 6px;background:transparent;color:var(--ink);border:2px solid var(--ink);border-bottom:none;border-radius:12px 12px 0 0;cursor:pointer}
+nav button[aria-selected="true"]{background:var(--paper);box-shadow:inset 0 4px 0 var(--hi)}
+section{background:var(--paper);border:2px solid var(--ink);border-radius:0 0 14px 14px;padding:18px}
+h2{margin:0 0 12px;font-size:1.35rem}
+.row{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;align-items:end}
+label{display:block;font-weight:600;font-size:.95rem}
+label b{float:right;color:var(--teal)}
+input[type=range]{width:100%;accent-color:var(--teal)}
+.chk{display:flex;align-items:center;gap:8px}
+.seg{display:flex}
+.seg button{flex:1;font:inherit;font-weight:600;padding:8px;border:2px solid var(--ink);background:transparent;color:var(--ink);cursor:pointer}
+.seg button:first-child{border-radius:10px 0 0 10px}.seg button:last-child{border-radius:0 10px 10px 0;border-left:none}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+svg{width:100%;height:auto;display:block;margin:10px 0}
+svg text{fill:var(--mut);font:11px 'Bricolage Grotesque',sans-serif}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;text-align:center}
+.stats div{border:2px solid var(--line);border-radius:10px;padding:8px 4px}
+.stats b{display:block;font-size:1.25rem}
+.stats small{color:var(--mut)}
+.split{display:flex;height:14px;border-radius:7px;overflow:hidden;margin:10px 0;border:2px solid var(--ink)}
+.split i{display:block;transition:width .4s}
+.mission{margin-top:12px;padding:10px 12px;border:2px dashed var(--ink);border-radius:10px;background:color-mix(in srgb,var(--hi) 22%,transparent)}
+.mission.done{border-style:solid;background:color-mix(in srgb,var(--teal) 25%,transparent)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chips span{padding:3px 10px;border:2px solid var(--line);border-radius:20px;font-size:.85rem;color:var(--mut)}
+.chips span.on{border-color:var(--teal);color:var(--ink);background:color-mix(in srgb,var(--teal) 25%,transparent)}
+#verdict{font-weight:600;min-height:3em;margin:4px 0}
+.small{font-size:.85rem;color:var(--mut)}
+.opts{display:grid;gap:8px;margin:12px 0}
+.opts button{font:inherit;text-align:left;padding:11px 14px;border:2px solid var(--ink);border-radius:10px;background:var(--paper);color:var(--ink);cursor:pointer}
+.opts button:hover:not(:disabled){background:color-mix(in srgb,var(--hi) 35%,transparent)}
+.opts button.ok{background:var(--teal);color:#fff;border-color:var(--teal);animation:pop .3s}
+.opts button.no{background:var(--coral);color:#fff;border-color:var(--coral)}
+@keyframes pop{50%{transform:scale(1.03)}}
+.fb{padding:10px 12px;border-left:6px solid var(--teal);background:color-mix(in srgb,var(--teal) 14%,transparent);border-radius:6px;margin:8px 0}
+.fb.bad{border-color:var(--coral);background:color-mix(in srgb,var(--coral) 14%,transparent)}
+.btn{font:inherit;font-weight:800;padding:10px 20px;border:2px solid var(--ink);border-radius:10px;background:var(--hi);color:#14213D;cursor:pointer}
+.prog{display:flex;justify-content:space-between;color:var(--mut);font-weight:600;font-size:.9rem}
+.big{font-size:3rem;font-weight:800;line-height:1}
+button:focus-visible,input:focus-visible{outline:3px solid var(--teal);outline-offset:2px}
+[hidden]{display:none!important}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<h1>CNN Lab <span>Check</span></h1>
+<p>Build a network, turn the dials, then prove you understood Lab 04.</p>
+<div class="xp"><b id="xp">0</b> XP <span id="rank">Pixel Intern</span><i><u id="bar"></u></i></div>
+</header>
+<nav role="tablist">
+<button role="tab" aria-selected="true" data-t="0">1. Build</button>
+<button role="tab" aria-selected="false" data-t="1">2. Learning rate</button>
+<button role="tab" aria-selected="false" data-t="2">3. Quiz</button>
+</nav>
+
+<section id="t0">
+<h2>Build a network and watch the parameters</h2>
+<div class="row">
+<label for="nb">Conv blocks <b id="vb">3</b></label>
+<label for="bf">Base filters <b id="vf">32</b></label>
+</div>
+<div class="row">
+<input type="range" id="nb" min="1" max="5" value="3" aria-label="Conv blocks">
+<input type="range" id="bf" min="8" max="64" step="8" value="32" aria-label="Base filters">
+</div>
+<div class="row" style="margin-top:12px">
+<div class="seg"><button data-h="gap" aria-pressed="true">GAP head</button><button data-h="fc" aria-pressed="false">Flatten + FC</button></div>
+<label class="chk"><input type="checkbox" id="bn" checked> BatchNorm in every block</label>
+</div>
+<svg id="net" viewBox="0 0 640 180" role="img" aria-label="Diagram of the network"></svg>
+<div class="stats">
+<div><b id="pt">0</b><small>total parameters</small></div>
+<div><b id="pc">0</b><small>conv blocks</small></div>
+<div><b id="ph">0</b><small>classification head</small></div>
+</div>
+<div class="split"><i id="sc" style="background:var(--teal)"></i><i id="sh" style="background:var(--coral)"></i></div>
+<p class="small">Teal = conv blocks, coral = head. Input is a 32×32 color image, 10 classes. Try 3 blocks with GAP, then switch to Flatten + FC.</p>
+<div class="mission" id="m1"><b>Mission:</b> build a network with <b>4 or more blocks</b> and <b>under 100,000</b> parameters. (+150 XP)</div>
+</section>
+
+<section id="t1" hidden>
+<h2>Turn the learning-rate dial</h2>
+<label for="lr">Learning rate <b id="lrv"></b></label>
+<input type="range" id="lr" min="0" max="100" value="5" aria-label="Learning rate">
+<label class="chk" style="margin-top:8px"><input type="checkbox" id="cos"> Cosine schedule (learning rate decays)</label>
+<svg id="lrc" viewBox="0 0 640 220" role="img" aria-label="Training loss curve"></svg>
+<div id="verdict" aria-live="polite"></div>
+<div class="chips" id="chips"></div>
+<p class="small">Dashed line = a good run (lr 1.6e-3) for comparison. These are illustrative curves that mimic typical behavior, not real training runs.</p>
+<div class="mission" id="m2"><b>Mission:</b> visit all four zones: too slow, sweet spot, bouncy and diverging. (+150 XP)</div>
+</section>
+
+<section id="t2" hidden>
+<div id="quiz"></div>
+</section>
+</div>
+
+<script>
+const $=s=>document.querySelector(s), fmt=n=>n.toLocaleString('en-US');
+let xp=0,done1=false,done2=false;
+const RANKS=[[0,'Pixel Intern'],[300,'Kernel Tinkerer'],[700,'Feature Hunter'],[1200,'CNN Architect']];
+function award(n){xp+=n;$('#xp').textContent=xp;$('#bar').style.width=Math.min(100,xp/15)+'%';
+ $('#rank').textContent=RANKS.filter(r=>xp>=r[0]).pop()[1];}
+
+/* tabs */
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{
+ document.querySelectorAll('nav button').forEach(x=>x.setAttribute('aria-selected',x===b));
+ [0,1,2].forEach(i=>$('#t'+i).hidden=i!=b.dataset.t);});
+
+/* ---------- Build ---------- */
+let head='gap';
+function params(nb,base,hd,bn){let ci=3,c=base,conv=0;
+ for(let i=0;i<nb;i++){conv+=ci*c*9+c+(bn?2*c:0);ci=c;c*=2;}
+ const size=32>>nb;
+ const h=hd=='gap'?ci*10+10:ci*size*size*256+256+256*10+10;
+ return{conv,h,ci,size};}
+function drawNet(){
+ const nb=+$('#nb').value,base=+$('#bf').value,bn=$('#bn').checked;
+ $('#vb').textContent=nb;$('#vf').textContent=base;
+ const p=params(nb,base,head,bn),T=p.conv+p.h;
+ $('#pt').textContent=fmt(T);$('#pc').textContent=fmt(p.conv);$('#ph').textContent=fmt(p.h);
+ $('#sc').style.width=(100*p.conv/T)+'%';$('#sh').style.width=(100*p.h/T)+'%';
+ let s='',x=14,mid=84,c=base;
+ s+=`<rect x="${x}" y="${mid-32}" width="12" height="64" fill="var(--hi)" stroke="var(--ink)" stroke-width="2"/><text x="${x-4}" y="${mid+50}">image</text><text x="${x-4}" y="${mid+62}">3×32²</text>`;
+ x+=34;
+ for(let i=0;i<nb;i++){const sz=32>>(i+1),h=Math.max(6,sz*4),w=6+Math.sqrt(c)*2.2;
+  s+=`<rect x="${x}" y="${mid-h/2}" width="${w}" height="${h}" rx="2" fill="var(--teal)" fill-opacity=".85" stroke="var(--ink)" stroke-width="2"/>`;
+  s+=`<text x="${x-2}" y="${mid+h/2+14}">${c}ch</text><text x="${x-2}" y="${mid+h/2+26}">${sz}×${sz}</text>`;
+  x+=w+22;c*=2;}
+ if(head=='gap'){
+  s+=`<circle cx="${x+10}" cy="${mid}" r="10" fill="var(--coral)" stroke="var(--ink)" stroke-width="2"/><text x="${x-4}" y="${mid+30}">average</text><text x="${x-4}" y="${mid+42}">${p.ci} numbers</text>`;
+  x+=50;
+ }else{
+  s+=`<rect x="${x}" y="${mid-70}" width="12" height="140" fill="var(--coral)" stroke="var(--ink)" stroke-width="2"/><text x="${x-6}" y="${mid+86}">flatten</text><text x="${x-6}" y="${mid+98}">${fmt(p.ci*p.size*p.size)}</text>`;
+  x+=34;
+  s+=`<rect x="${x}" y="${mid-40}" width="12" height="80" fill="var(--coral)" fill-opacity=".6" stroke="var(--ink)" stroke-width="2"/><text x="${x-4}" y="${mid+56}">FC 256</text>`;
+  x+=34;}
+ for(let k=0;k<10;k++)s+=`<circle cx="${x+8}" cy="${14+k*17}" r="5" fill="var(--paper)" stroke="var(--ink)" stroke-width="2"/>`;
+ s+=`<text x="${x-2}" y="176">10 classes</text>`;
+ $('#net').setAttribute('viewBox',`0 0 ${Math.max(640,x+60)} 180`);
+ $('#net').innerHTML=s;
+ if(!done1&&nb>=4&&T<100000){done1=true;$('#m1').classList.add('done');$('#m1').innerHTML='<b>Mission complete!</b> '+nb+' blocks in only '+fmt(T)+' parameters. +150 XP';award(150);}
+}
+['#nb','#bf','#bn'].forEach(i=>$(i).oninput=drawNet);
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{head=b.dataset.h;
+ document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));drawNet();});
+
+/* ---------- Learning rate ---------- */
+const ZN=['Too slow','Sweet spot','Bouncy','Diverging'],seen=new Set();
+const VT=['Too slow: the loss is still high after 15 epochs. It is learning, but you would need many more epochs.',
+ 'Sweet spot: a steady drop to a low loss.',
+ 'Bouncy: each step overshoots, so the loss zigzags and settles high. A cosine schedule calms the end.',
+ 'Diverging: the steps are so big that the loss blows up.'];
+const zone=r=>r<-3.6?0:r<-2.1?1:r<-1.2?2:3;
+function sim(r,cos){const o=[];
+ for(let e=0;e<=15;e++){
+  const k=.32*Math.pow(10,Math.min(0,r+3)*.9),fl=.5+Math.max(0,r+2.2)*.9;
+  let L=fl+(2.3-fl)*Math.exp(-k*e);
+  const noise=Math.max(0,r+2.4)*.5*Math.sin(e*2.7+r*5)*(cos?1-e/15:1);
+  if(r>-1.2)L=2.3+(r+1.2)*2.5*e/15;
+  o.push(Math.min(4,Math.max(.2,L+noise)));}
+ return o;}
+const pl=a=>a.map((v,i)=>(40+i*38)+','+(200-(v-.2)*47)).join(' ');
+function drawLR(){
+ const r=-4+$('#lr').value*.04,cos=$('#cos').checked,z=zone(r);
+ $('#lrv').textContent=Math.pow(10,r).toExponential(1);
+ let s='<line x1="40" y1="200" x2="620" y2="200" stroke="var(--mut)"/><line x1="40" y1="10" x2="40" y2="200" stroke="var(--mut)"/>';
+ s+='<text x="300" y="216">epoch</text><text x="2" y="14">loss</text>';
+ s+=`<polyline points="${pl(sim(-2.8,false))}" fill="none" stroke="var(--mut)" stroke-width="2" stroke-dasharray="5 5"/>`;
+ s+=`<polyline points="${pl(sim(r,cos))}" fill="none" stroke="${z==1?'var(--teal)':'var(--coral)'}" stroke-width="4" stroke-linejoin="round"/>`;
+ $('#lrc').innerHTML=s;
+ $('#verdict').textContent=VT[z];
+ seen.add(z);
+ $('#chips').innerHTML=ZN.map((n,i)=>`<span class="${seen.has(i)?'on':''}">${seen.has(i)?'✓ ':''}${n}</span>`).join('');
+ if(!done2&&seen.size==4){done2=true;$('#m2').classList.add('done');$('#m2').innerHTML='<b>Mission complete!</b> You found all four behaviors. +150 XP';award(150);}
+}
+$('#lr').oninput=drawLR;$('#cos').onchange=drawLR;
+
+/* ---------- Quiz ---------- */
+const curve=(a,b,la,lb)=>`<svg viewBox="0 0 300 120" style="max-width:340px" role="img" aria-label="Training curves"><line x1="30" y1="105" x2="290" y2="105" stroke="var(--mut)"/><line x1="30" y1="8" x2="30" y2="105" stroke="var(--mut)"/>
+<polyline fill="none" stroke="var(--teal)" stroke-width="3" points="${a.map((v,i)=>(30+i*18.5)+','+(105-v*95)).join(' ')}"/>
+<polyline fill="none" stroke="var(--coral)" stroke-width="3" points="${b.map((v,i)=>(30+i*18.5)+','+(105-v*95)).join(' ')}"/>
+<text x="200" y="22" style="fill:var(--teal)">${la}</text><text x="200" y="36" style="fill:var(--coral)">${lb}</text><text x="120" y="118">epochs</text></svg>`;
+const E=[...Array(15).keys()];
+const V={
+ o:curve(E.map(e=>.4+.58*(1-Math.exp(-e/3))),E.map(e=>.4+.3*(1-Math.exp(-e/3))),'train accuracy','val accuracy'),
+ z:curve(E.map(e=>.8*Math.exp(-e/9)+.1),E.map(e=>Math.min(1,.8*Math.exp(-e/9)+.15+.28*Math.abs(Math.sin(e*2.1)))),'smooth ref','loss (this run)'),
+ u:curve(E.map(e=>.1+.06*e/14+.02),E.map(e=>.1+.05*e/14),'train accuracy','val accuracy')};
+const Q=[
+ {q:'A 3-block network ends with 128 feature maps. How many parameters does a GAP head for 10 classes have?',o:['1,290','1,280','2,048','524,544'],w:'128 weights per class × 10 classes + 10 biases = 1,290. GAP averages each map to one number, so the head only sees 128 inputs.'},
+ {q:'Why does a Flatten + FC head tend to overfit more than GAP?',o:['It has far more parameters available to memorize the training set','It uses a smaller learning rate','It skips the convolutions','It cannot use dropout'],w:'The first dense layer connects every flattened value to 256 units: over 500k weights in our example, against 1,290 for GAP.'},
+ {q:'You double the input image size but keep the same blocks. What must you rebuild?',o:['The FC head: its input length changed','The GAP head: it needs more weights','Neither head, both adapt','Both heads'],w:'GAP gives one number per channel whatever the image size. FC expects an exact flattened length, so it breaks.'},
+ {v:'o',q:'Look at the curves. What is happening?',o:['Overfitting: training keeps improving while validation stalls','Underfitting: the model is too small','The learning rate is too high','A perfect fit'],w:'A growing gap between train and validation accuracy is the signature of overfitting. Try dropout, augmentation or a GAP head.'},
+ {v:'z',q:'The loss of this run zigzags instead of dropping smoothly. Most likely cause?',o:['The learning rate is too high','The learning rate is too low','Overfitting','Normal training'],w:'Big steps overshoot the minimum, so the loss bounces. Lower the learning rate or add a decaying schedule.'},
+ {v:'u',q:'Train and validation accuracy both barely move. What should you try first?',o:['A larger learning rate (or a stronger model)','Stronger dropout','Evaluating on the test set','Removing BatchNorm'],w:'Both curves are low and flat, so the model is not fitting yet (underfitting). The learning rate is likely too small, or the model too weak.'},
+ {q:'Where should data augmentation be applied?',o:['Training data only','Training and validation','Validation and test only','Test only'],w:'Augmentation makes training harder on purpose. Validation and test must stay untouched so they measure real performance.'},
+ {q:'When may you evaluate on the test set?',o:['Once, after choosing the final model with validation','After every epoch','Whenever validation accuracy drops','Before training, to set a baseline'],w:'Repeated test checks turn it into a second validation set, and your final number becomes optimistic.'},
+ {q:'Run A: 3 blocks, lr 1e-3. Run B: 4 blocks, lr 1e-2. B is 2% better. What can you conclude?',o:['Nothing about either change, because two things changed at once','Depth helped','The learning rate helped','B overfits'],w:'Change one thing at a time against a fixed baseline, with the same seed and split. Otherwise you cannot tell what caused the difference.'},
+ {q:'A 32×32 image passes through 3 conv blocks (padding 1), each ending in MaxPool 2×2. What spatial size reaches the head?',o:['4×4','8×8','2×2','16×16'],w:'Padding keeps the size in each conv; each pool halves it: 32 → 16 → 8 → 4.'}];
+let qi=0,score=0,streak=0,correct=0;
+const sh=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+function ask(){
+ if(qi>=Q.length)return finish();
+ const q=Q[qi],opts=sh(q.o.map((t,i)=>({t,ok:i==0})));
+ $('#quiz').innerHTML=`<div class="prog"><span>Question ${qi+1} of ${Q.length}</span><span>Streak ${streak} 🔥</span></div>
+ <h2 style="margin-top:10px">${q.q}</h2>${q.v?V[q.v]:''}<div class="opts">${opts.map((o,i)=>`<button data-i="${i}">${o.t}</button>`).join('')}</div><div id="fb" aria-live="polite"></div>`;
+ document.querySelectorAll('.opts button').forEach((b,i)=>b.onclick=()=>{
+  const ok=opts[i].ok;
+  document.querySelectorAll('.opts button').forEach((x,j)=>{x.disabled=true;if(opts[j].ok)x.classList.add('ok');});
+  if(!ok)b.classList.add('no');
+  if(ok){streak++;correct++;award(100+20*(streak-1));}else streak=0;
+  $('#fb').innerHTML=`<div class="fb ${ok?'':'bad'}"><b>${ok?'Correct! +'+(100+20*(streak-1))+' XP':'Not quite.'}</b> ${q.w}</div><button class="btn" id="nx">${qi==Q.length-1?'See results':'Next question'}</button>`;
+  $('#nx').onclick=()=>{qi++;ask();};$('#nx').focus();});
+}
+function finish(){
+ let best=correct;try{best=Math.max(correct,+localStorage.getItem('cnnlab-best')||0);localStorage.setItem('cnnlab-best',best);}catch(e){}
+ const msg=correct>=9?'You really get it. Go beat the Kaggle leaderboard.':correct>=6?'Solid. Revisit the questions you missed in the lab handout.':'Reread Part 1 and replay the Build and Learning rate tabs, then try again.';
+ $('#quiz').innerHTML=`<div class="big">${correct}/${Q.length}</div><h2 style="margin-top:8px">${msg}</h2><p>Total XP: <b>${xp}</b>. Rank: <b>${$('#rank').textContent}</b>. Best quiz score on this device: ${best}/${Q.length}.</p><button class="btn" id="again">Play again</button>`;
+ $('#again').onclick=()=>{qi=0;correct=0;streak=0;ask();};
+}
+drawNet();drawLR();ask();
+</script>
+</body>
+</html>
